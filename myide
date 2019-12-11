@@ -1,0 +1,174 @@
+#!/usr/bin/env ruby
+
+require 'fox16'
+include Fox
+
+ID_NO,
+ID_LAST=enum(FXMainWindow::ID_LAST,1)
+
+$my_title='myide'
+$file_name=''
+$buffer='fi'
+$fxt=nil
+$myw=nil
+
+def my_open(sender,sel,idx)
+	dia=FXFileDialog.new(sender,'Open')
+	dia.execute
+	$file_name=dia.getFilename
+
+	if($file_name=='')
+		puts('Empty filename')
+		$file_name=''
+		$buffer=''
+		$fxt.setText('')
+		$myw.setTitle("#{$my_title} - #{$file_name}")
+		return 1
+	end
+
+	if(File::exists?($file_name)==false)
+		puts("File doesn't exist!")
+		$file_name=''
+		$buffer=''
+		$fxt.setText('')
+		$myw.setTitle("#{$my_title} - #{$file_name}")
+		msg="File doesn't exist!"
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		return 1
+	end
+
+	puts"CWD:#{File::dirname($file_name)}"
+
+	$buffer=''
+	File.open($file_name,'r'){|f|f.each_line{|l|$buffer+=l}}
+	puts"Opened #{$file_name}"
+	$fxt.setText($buffer)
+	$myw.setTitle("#{$my_title} - #{$file_name}")
+end
+
+def save_as(sender,sel,idx)
+	dia=FXFileDialog.new(sender,'Save As')
+	dia.execute
+	$file_name=dia.getFilename
+
+	if($file_name=='')
+		puts('Empty filename')
+		return 1
+	end
+
+	if(File::exists?($file_name))
+		puts('File already exists!')
+		msg="File already exists!\nOverwrite existing file?"
+		q=FXMessageBox.new(sender,'Warning',msg,nil,MBOX_YES_NO).execute
+		puts"You said #{q}"
+		if(q==1)
+			puts 'not cancel'
+		else
+			puts 'cancel'
+			return 1
+		end
+	end
+
+	$buffer=$fxt.getText
+	File.open($file_name,'w'){|f|f.puts($buffer)}
+	puts"Wrote #{$file_name}"
+	$myw.setTitle("#{$my_title} - #{$file_name}")
+end
+
+def save(sender,sel,idx)
+	if($file_name=='')
+		puts('Empty filename')
+		save_as(sender,sel,idx)
+		return 1
+	end
+
+	$buffer=$fxt.getText
+	File.open($file_name,'w'){|f|f.puts($buffer)}
+	puts"Wrote #{$file_name}"
+end
+
+def make(sender,sel,idx)
+	if($file_name=='')
+		puts('Empty filename')
+		msg="File doesn't exist!"
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		return 1
+	end
+
+	#File.open($file_name,'w'){|f|f.puts($buffer)}
+	puts"Building #{$file_name}"
+	system("make")
+end
+
+def make_B(sender,sel,idx)
+	if($file_name=='')
+		puts('Empty filename')
+		msg="File doesn't exist!"
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		return 1
+	end
+
+	#File.open($file_name,'w'){|f|f.puts($buffer)}
+	puts"Building (unconditional)#{$file_name}"
+	system("make -B")
+end
+
+def quit(sender,sel,idx)
+	puts('bye')
+	exit(0)
+end
+
+def my_close(sender,sel,idx)
+	puts('Clearing buffer')
+	$buffer=''
+	$file_name=''
+	$fxt.setText('')
+	$myw.setTitle($my_title)
+end
+
+
+# App + window
+app = FXApp.new
+main=FXMainWindow.new(app,$my_title,:width=>640,:height=>480)
+$myw=main
+
+# Widgets
+mb=FXMenuBar.new(main)
+mpfile=FXMenuPane.new(main)
+mpbuild=FXMenuPane.new(main)
+FXMenuTitle.new(mb,'&File',nil,mpfile)
+FXMenuTitle.new(mb,'&Build',nil,mpbuild)
+FXMenuCommand.new(mpfile,'&Open',nil).connect(SEL_COMMAND,method(:my_open))
+FXMenuCommand.new(mpfile,'&Save',nil).connect(SEL_COMMAND,method(:save))
+FXMenuCommand.new(mpfile,'Save &As',nil).connect(SEL_COMMAND,method(:save_as))
+FXMenuCommand.new(mpfile,'&Close',nil).connect(SEL_COMMAND,method(:my_close))
+FXMenuCommand.new(mpfile,'E&xit',nil).connect(SEL_COMMAND,method(:quit))
+FXMenuCommand.new(mpbuild,'&Make',nil).connect(SEL_COMMAND,method(:make))
+FXMenuCommand.new(mpbuild,'Make -&B',nil).connect(SEL_COMMAND,method(:make_B))
+$fxt=FXText.new(main,nil,0,LAYOUT_FILL_X|LAYOUT_FILL_Y)
+$fxt.setSelBackColor(0x88888888)
+
+# Open ARGV file
+def check
+	if(ARGV.length>0)
+		if(File::exists?(ARGV[0])==false)
+			puts("File doesn't exist!")
+			return
+		end
+
+		$file_name=ARGV[0]
+
+		puts"Opening #{ARGV[0]}"
+		$buffer=''
+		File.open($file_name,'r'){|f|f.each_line{|l|$buffer+=l}}
+		puts"Opened #{$file_name}"
+		$fxt.setText($buffer)
+		$myw.setTitle("#{$my_title} - #{$file_name}")
+	end
+end
+check
+
+# Program
+app.create
+main.show(PLACEMENT_SCREEN)
+app.run
