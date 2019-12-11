@@ -15,28 +15,30 @@ $myw=nil
 def my_open(sender,sel,idx)
 	dia=FXFileDialog.new(sender,'Open')
 	dia.execute
-	$file_name=dia.getFilename
+	fn=dia.getFilename
+	#$file_name=dia.getFilename
 
-	if($file_name=='')
+	if(fn=='')
 		puts('Empty filename')
-		$file_name=''
-		$buffer=''
-		$fxt.setText('')
-		$myw.setTitle("#{$my_title} - #{$file_name}")
+		#$file_name=''
+		#$buffer=''
+		#$fxt.setText('')
+		#$myw.setTitle("#{$my_title} - #{$file_name}")
 		return 1
 	end
 
-	if(File::exists?($file_name)==false)
+	if(File::exists?(fn)==false)
 		puts("File doesn't exist!")
-		$file_name=''
-		$buffer=''
-		$fxt.setText('')
-		$myw.setTitle("#{$my_title} - #{$file_name}")
+		#$file_name=''
+		#$buffer=''
+		#$fxt.setText('')
+		#$myw.setTitle("#{$my_title} - #{$file_name}")
 		msg="File doesn't exist!"
 		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
 		return 1
 	end
 
+	$file_name=fn
 	puts"CWD:#{File::dirname($file_name)}"
 
 	$buffer=''
@@ -70,7 +72,7 @@ def save_as(sender,sel,idx)
 	end
 
 	$buffer=$fxt.getText
-	File.open($file_name,'w'){|f|f.puts($buffer)}
+	File.open($file_name,'w'){|f|f.print($buffer)}
 	puts"Wrote #{$file_name}"
 	$myw.setTitle("#{$my_title} - #{$file_name}")
 end
@@ -83,7 +85,7 @@ def save(sender,sel,idx)
 	end
 
 	$buffer=$fxt.getText
-	File.open($file_name,'w'){|f|f.puts($buffer)}
+	File.open($file_name,'w'){|f|f.print($buffer)}
 	puts"Wrote #{$file_name}"
 end
 
@@ -111,6 +113,30 @@ def make_B(sender,sel,idx)
 	#File.open($file_name,'w'){|f|f.puts($buffer)}
 	puts"Building (unconditional)#{$file_name}"
 	system("make -B")
+end
+
+def my_run(sender,sel,idx)
+	if($file_name=='')
+		puts'here you are'
+		puts('Empty filename')
+		msg="No file open!"
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		return 1
+	end
+
+	if(File::exists?($file_name)==false)
+		puts("File doesn't exist!")
+		$file_name=''
+		$buffer=''
+		$fxt.setText('')
+		$myw.setTitle("#{$my_title} - #{$file_name}")
+		msg="File doesn't exist!"
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		return 1
+	end
+
+	puts"Running #{$file_name.split('.')[0]}"
+	system("#{$file_name.split('.')[0]}")
 end
 
 def quit(sender,sel,idx)
@@ -145,28 +171,27 @@ FXMenuCommand.new(mpfile,'&Close',nil).connect(SEL_COMMAND,method(:my_close))
 FXMenuCommand.new(mpfile,'E&xit',nil).connect(SEL_COMMAND,method(:quit))
 FXMenuCommand.new(mpbuild,'&Make',nil).connect(SEL_COMMAND,method(:make))
 FXMenuCommand.new(mpbuild,'Make -&B',nil).connect(SEL_COMMAND,method(:make_B))
+FXMenuCommand.new(mpbuild,'&Run',nil).connect(SEL_COMMAND,method(:my_run))
 $fxt=FXText.new(main,nil,0,LAYOUT_FILL_X|LAYOUT_FILL_Y)
 $fxt.setSelBackColor(0x88888888)
 
 # Open ARGV file
-def check
-	if(ARGV.length>0)
-		if(File::exists?(ARGV[0])==false)
-			puts("File doesn't exist!")
-			return
-		end
 
-		$file_name=ARGV[0]
+if(ARGV.length>0)
+	if(File::exists?(ARGV[0])==false)
+		puts("File doesn't exist!")
+		return
+	else
 
-		puts"Opening #{ARGV[0]}"
 		$buffer=''
-		File.open($file_name,'r'){|f|f.each_line{|l|$buffer+=l}}
+		File.open(ARGV[0],'r'){|f|f.each_line{|l|$buffer+=l}}
+		$file_name=File.expand_path(ARGV[0])
 		puts"Opened #{$file_name}"
+		#$file_name=ARGV[0]
 		$fxt.setText($buffer)
 		$myw.setTitle("#{$my_title} - #{$file_name}")
 	end
 end
-check
 
 # Program
 app.create
