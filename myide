@@ -11,6 +11,7 @@ $file_name=''
 $buffer='fi'
 $fxt=nil
 $myw=nil
+$_ss=''
 
 def my_open(sender,sel,idx)
 	dia=FXFileDialog.new(sender,'Open')
@@ -152,6 +153,36 @@ def my_close(sender,sel,idx)
 	$myw.setTitle($my_title)
 end
 
+def my_find(sender,sel,idx)
+	puts('Find')
+	x=FXSearchDialog.new(sender,"Find",nil,FXSearchDialog::ID_DIR)
+	x.setSearchText($_ss)
+
+	while true
+		# Get user search input
+		y=x.execute
+		$_ss=x.getSearchText
+
+		if y==0 then break end
+
+		# Actually find string
+		np=[$fxt.getCursorPos,$fxt.getSelEndPos].max
+		m=$fxt.findText(x.getSearchText,np)
+		print('findText:',m[0][0],m[1][0],"\n")
+
+		#if(x.getSearchMode&FXSearchDialog::ID_NEXT)then puts('NEXT')end
+		#else puts('PREV')end
+
+		$fxt.setSelection(m[0][0],(m[1][0]-m[0][0]))
+		$fxt.setCursorPos(m[0][0])
+		$fxt.makePositionVisible($fxt.getCursorPos)
+
+		if x.shown==false
+			break
+		end
+	end
+end
+
 
 # App + window
 app = FXApp.new
@@ -159,16 +190,19 @@ main=FXMainWindow.new(app,$my_title,:width=>640,:height=>480)
 $myw=main
 
 # Widgets
-mb=FXMenuBar.new(main)
+mb=FXMenuBar.new(main,nil,LAYOUT_FILL_X|FRAME_RAISED)
 mpfile=FXMenuPane.new(main)
+mpedit=FXMenuPane.new(main)
 mpbuild=FXMenuPane.new(main)
 FXMenuTitle.new(mb,'&File',nil,mpfile)
+FXMenuTitle.new(mb,'&Edit',nil,mpedit)
 FXMenuTitle.new(mb,'&Build',nil,mpbuild)
 FXMenuCommand.new(mpfile,'&Open',nil).connect(SEL_COMMAND,method(:my_open))
 FXMenuCommand.new(mpfile,'&Save',nil).connect(SEL_COMMAND,method(:save))
 FXMenuCommand.new(mpfile,'Save &As',nil).connect(SEL_COMMAND,method(:save_as))
 FXMenuCommand.new(mpfile,'&Close',nil).connect(SEL_COMMAND,method(:my_close))
 FXMenuCommand.new(mpfile,'E&xit',nil).connect(SEL_COMMAND,method(:quit))
+FXMenuCommand.new(mpedit,'F&ind',nil).connect(SEL_COMMAND,method(:my_find))
 FXMenuCommand.new(mpbuild,'&Make',nil).connect(SEL_COMMAND,method(:make))
 FXMenuCommand.new(mpbuild,'Make -&B',nil).connect(SEL_COMMAND,method(:make_B))
 FXMenuCommand.new(mpbuild,'&Run',nil).connect(SEL_COMMAND,method(:my_run))
@@ -180,7 +214,6 @@ $fxt.setSelBackColor(0x88888888)
 if(ARGV.length>0)
 	if(File::exists?(ARGV[0])==false)
 		puts("File doesn't exist!")
-		return
 	else
 
 		$buffer=''
