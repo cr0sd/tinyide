@@ -15,7 +15,7 @@ $_ss=''
 
 def my_open(sender,sel,idx)
 	dia=FXFileDialog.new(sender,'Open')
-	dia.execute
+	dia.execute(PLACEMENT_OWNER)
 	fn=dia.getFilename
 	#$file_name=dia.getFilename
 
@@ -35,7 +35,7 @@ def my_open(sender,sel,idx)
 		#$fxt.setText('')
 		#$myw.setTitle("#{$my_title} - #{$file_name}")
 		msg="File doesn't exist!"
-		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute(PLACEMENT_OWNER)
 		return 1
 	end
 
@@ -51,7 +51,7 @@ end
 
 def save_as(sender,sel,idx)
 	dia=FXFileDialog.new(sender,'Save As')
-	dia.execute
+	dia.execute(PLACEMENT_OWNER)
 	$file_name=dia.getFilename
 
 	if($file_name=='')
@@ -62,7 +62,7 @@ def save_as(sender,sel,idx)
 	if(File::exists?($file_name))
 		puts('File already exists!')
 		msg="File already exists!\nOverwrite existing file?"
-		q=FXMessageBox.new(sender,'Warning',msg,nil,MBOX_YES_NO).execute
+		q=FXMessageBox.new(sender,'Warning',msg,nil,MBOX_YES_NO).execute(PLACEMENT_OWNER)
 		puts"You said #{q}"
 		if(q==1)
 			puts 'not cancel'
@@ -94,7 +94,7 @@ def make(sender,sel,idx)
 	if($file_name=='')
 		puts('Empty filename')
 		msg="File doesn't exist!"
-		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute(PLACEMENT_OWNER)
 		return 1
 	end
 
@@ -107,7 +107,7 @@ def make_B(sender,sel,idx)
 	if($file_name=='')
 		puts('Empty filename')
 		msg="File doesn't exist!"
-		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute(PLACEMENT_OWNER)
 		return 1
 	end
 
@@ -121,7 +121,7 @@ def my_run(sender,sel,idx)
 		puts'here you are'
 		puts('Empty filename')
 		msg="No file open!"
-		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute(PLACEMENT_OWNER)
 		return 1
 	end
 
@@ -132,7 +132,7 @@ def my_run(sender,sel,idx)
 		$fxt.setText('')
 		$myw.setTitle("#{$my_title} - #{$file_name}")
 		msg="File doesn't exist!"
-		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute
+		FXMessageBox.new(sender,'Alert',msg,nil,MBOX_OK).execute(PLACEMENT_OWNER)
 		return 1
 	end
 
@@ -160,7 +160,7 @@ def my_find(sender,sel,idx)
 
 	while true
 		# Get user search input
-		y=x.execute
+		y=x.execute(PLACEMENT_OWNER)
 		$_ss=x.getSearchText
 
 		if y==0 then break end
