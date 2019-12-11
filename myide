@@ -154,7 +154,7 @@ def my_close(sender,sel,idx)
 end
 
 def my_find(sender,sel,idx)
-	puts('Find')
+	#puts('Find')
 	x=FXSearchDialog.new(sender,"Find",nil,FXSearchDialog::ID_DIR)
 	x.setSearchText($_ss)
 
@@ -162,13 +162,16 @@ def my_find(sender,sel,idx)
 		# Get user search input
 		y=x.execute(PLACEMENT_OWNER)
 		$_ss=x.getSearchText
+		if $_ss=='' then return end
 
 		if y==0 then break end
 
 		# Actually find string
 		np=[$fxt.getCursorPos,$fxt.getSelEndPos].max
+		if np<0 then return end
 		m=$fxt.findText(x.getSearchText,np)
-		print('findText:',m[0][0],m[1][0],"\n")
+		if m.class == nil.class then puts('Not found'); return end
+		#print('findText:',m[0][0],m[1][0],"\n")
 
 		#if(x.getSearchMode&FXSearchDialog::ID_NEXT)then puts('NEXT')end
 		#else puts('PREV')end
