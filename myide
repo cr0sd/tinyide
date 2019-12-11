@@ -43,7 +43,7 @@ def my_open(sender,sel,idx)
 	puts"CWD:#{File::dirname($file_name)}"
 
 	$buffer=''
-	File.open($file_name,'r'){|f|f.each_line{|l|$buffer+=l}}
+	File.open($file_name,'rb'){|f|f.each_line{|l|$buffer+=l}}
 	puts"Opened #{$file_name}"
 	$fxt.setText($buffer)
 	$myw.setTitle("#{$my_title} - #{$file_name}")
@@ -73,7 +73,7 @@ def save_as(sender,sel,idx)
 	end
 
 	$buffer=$fxt.getText
-	File.open($file_name,'w'){|f|f.print($buffer)}
+	File.open($file_name,'wb'){|f|f.print($buffer)}
 	puts"Wrote #{$file_name}"
 	$myw.setTitle("#{$my_title} - #{$file_name}")
 end
@@ -86,7 +86,7 @@ def save(sender,sel,idx)
 	end
 
 	$buffer=$fxt.getText
-	File.open($file_name,'w'){|f|f.print($buffer)}
+	File.open($file_name,'wb'){|f|f.print($buffer)}
 	puts"Wrote #{$file_name}"
 end
 
@@ -98,7 +98,7 @@ def make(sender,sel,idx)
 		return 1
 	end
 
-	#File.open($file_name,'w'){|f|f.puts($buffer)}
+	#File.open($file_name,'wb'){|f|f.puts($buffer)}
 	puts"Building #{$file_name}"
 	system("make")
 end
@@ -111,7 +111,7 @@ def make_B(sender,sel,idx)
 		return 1
 	end
 
-	#File.open($file_name,'w'){|f|f.puts($buffer)}
+	#File.open($file_name,'wb'){|f|f.puts($buffer)}
 	puts"Building (unconditional)#{$file_name}"
 	system("make -B")
 end
@@ -217,7 +217,7 @@ if(ARGV.length>0)
 	else
 
 		$buffer=''
-		File.open(ARGV[0],'r'){|f|f.each_line{|l|$buffer+=l}}
+		File.open(ARGV[0],'rb'){|f|f.each_line{|l|$buffer+=l}}
 		$file_name=File.expand_path(ARGV[0])
 		puts"Opened #{$file_name}"
 		#$file_name=ARGV[0]
