@@ -1,4 +1,4 @@
 all:
 	@echo "HI!!!"
 install:
-	cp myide /usr/local/bin
+	cp tinyide /usr/local/bin
